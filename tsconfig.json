@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    // Other configuration...
+    "typeRoots": [
+      "./src/declarations.d.ts"
+    ]
+  }
+}

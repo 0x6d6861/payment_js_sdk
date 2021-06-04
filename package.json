@@ -1,0 +1,17 @@
+{
+  "name": "little_payment",
+  "version": "0.0.1",
+  "scripts": {
+    "build": "babel src -d lib",
+    "run": "npm run build && node ./lib/index.js"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.14.3",
+    "@babel/core": "^7.14.3",
+    "@babel/preset-env": "^7.14.4",
+    "@babel/preset-typescript": "^7.13.0"
+  },
+  "dependencies": {
+    "http-errors": "^1.8.0"
+  }
+}
