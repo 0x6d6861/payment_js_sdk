@@ -1,130 +1,103 @@
-import {encodeBase64, isBase64} from "./utils/utils";
-import {PROVIDERS, CURRENCIES} from "./enums/enums";
-import {makePostRequest} from "./utils/httpClient";
+import HttpClient from './utils/HttpClient';
+import BasicAuth from './utils/BasicAuth';
+import { CURRENCIES, PROVIDERS } from './enums/enums';
+import { AuthType, CheckoutDetailsType, PaymentDetailsType, ProviderDetailsType } from 'types';
+import ENV from './utils/ENV';
 
-const BASE_URL = 'https://pay.little.bz';
+const BASE_URL = ENV.PRODUCTION;
 
-export default function LittlePayment (ApiAuthentication: AuthType) {
+export default class LittlePayment {
+  private _apiAuth: BasicAuth;
 
-    const {clientId, clientSecret, appToken} = ApiAuthentication;
+  private paymentDetails: PaymentDetailsType = {
+    amount: 0,
+    callbackUrl: '',
+    currency: CURRENCIES.KES,
+    description: '',
+    expiresAt: 2,
+    key: '',
+    payload: {},
+  };
 
-    const checkoutDetails = {};
+  private providerDetails: ProviderDetailsType = {
+    type: PROVIDERS.CARDS,
+    details: {},
+  };
 
-    let paymentDetails : PaymentDetailsType = {
-        amount: 0,
-        currency: CURRENCIES.KES,
-        description: null,
-        callbackUrl: null,
-        expiresAt: 5, // minutes
-        key: null,
-        payload: {}
-    };
+  private _checkOutData: CheckoutDetailsType = {} as CheckoutDetailsType;
 
-    let providerDetails = {
-        type: PROVIDERS.CARDS,
-        details: {}
-    };
+  constructor(ApiAuthentication: AuthType) {
+    this._apiAuth = new BasicAuth(ApiAuthentication);
+  }
 
-    let checkOutData = {};
+  setKey(key: string) {
+    // TODO: validation comes here
+    this.paymentDetails.key = key;
+  }
 
-    if(!clientId || !clientSecret || !appToken) {
-        throw new Error("clientId or clientSecret or appToken not provided");
-    }
+  setCurrency(currency: CURRENCIES = CURRENCIES.KES) {
+    // TODO: validation comes here
+    this.paymentDetails.currency = currency;
+  }
 
-    if(!isBase64(clientSecret)) {
-        throw new Error("Invalid clientSecret provided");
-    }
+  setAmount(amount: number = 0) {
+    // TODO: validation comes here
+    this.paymentDetails.amount = amount;
+  }
 
-    if(clientId.length !== 16) {
-        throw new Error("Invalid clientId provided");
-    }
+  setDescription(description?: string) {
+    // TODO: validation comes here
+    this.paymentDetails.description = description;
+  }
 
-    const BASIC_AUTH = `Basic ${encodeBase64(`${clientId}:${clientSecret}`)}`;
+  setCallbackUrl(url?: string) {
+    // TODO: validation comes here
+    this.paymentDetails.callbackUrl = url;
+  }
 
-    function setKey(key= ""){
-        // TODO: validation comes here
-        paymentDetails.key = key;
-    }
+  setPayload(payload: object = {}) {
+    // TODO: validation comes here
+    this.paymentDetails.payload = payload;
+  }
 
-    function setCurrency(currency= CURRENCIES.KES){
-        // TODO: validation comes here
-        paymentDetails.currency = currency;
-    }
+  setPaymentProvider(provider = PROVIDERS.CARDS) {
+    // TODO: validation comes here
+    this.providerDetails.type = provider;
+  }
 
-    function setAmount(amount= 0){
-        // TODO: validation comes here
-        paymentDetails.amount = amount;
-    }
+  setProviderDetails(details: object = {}) {
+    // TODO: validation comes here
+    this.providerDetails.details = details;
+  }
 
-    function setDescription(description = null){
-        // TODO: validation comes here
-        paymentDetails.description = description;
-    }
+  setPaymentDetails(paymentDetailValues: PaymentDetailsType) {
+    // TODO: validation come here
+    this.paymentDetails = paymentDetailValues;
+  }
+  processCheckout(): Promise<CheckoutDetailsType> {
+    const CREATE_PAYMENT_INTENT = `${BASE_URL}/api/payments/${this._apiAuth.getAppToken()}/pay`;
 
-    function setCallbackUrl(url = null){
-        // TODO: validation comes here
-        paymentDetails.callbackUrl = url;
-    }
+    return HttpClient.makePostRequest(CREATE_PAYMENT_INTENT, this.paymentDetails, {
+      Authorization: this._apiAuth.getBasicAuth(),
+    }).then((response: any) => {
+      // console.log(response)
+      this._checkOutData = response.data as CheckoutDetailsType;
+      // console.log({response});
+      return this._checkOutData;
+    });
+  }
 
-    function setPayload(payload = {}){
-        // TODO: validation comes here
-        paymentDetails.payload = payload;
-    }
+  processPayment(provider: ProviderDetailsType) {
+    const PROCESS_PAYMENT = `${BASE_URL}/pay/${this._checkOutData.reference}/process`;
+    return HttpClient.makePostRequest(PROCESS_PAYMENT, {
+      type: provider.type,
+      payment: provider.details,
+    });
+  }
 
-    function setPaymentProvider(provider = PROVIDERS.CARDS) {
-        // TODO: validation comes here
-        providerDetails.type = provider
-    }
-
-    function setProviderDetails(details = {}) {
-        // TODO: validation comes here
-        providerDetails.details = details;
-    }
-
-    function setPaymentDetails(paymentDetailValues = {}) {
-        // TODO: validation come here
-        paymentDetails = paymentDetailValues
-    }
-
-    function processCheckout() {
-        const CREATE_PAYMENT_INTENT = `${BASE_URL}/api/payments/${appToken}/pay`;
-
-        return makePostRequest(CREATE_PAYMENT_INTENT, paymentDetails, {
-            Authorization: BASIC_AUTH
-        }).then(response => {
-            // console.log(response)
-            checkOutData = response;
-            // console.log({response});
-            return response;
-        })
-    }
-
-    function processPayment(provider = {type: PROVIDERS.CARDS, details: {}}) {
-        const PROCESS_PAYMENT = `${BASE_URL}/pay/${checkOutData.data.reference}/process`;
-        return makePostRequest(PROCESS_PAYMENT, {
-            type: provider.type,
-            payment: provider.details
-        });
-    }
-
-    function pay() {
-        return processCheckout().then(() => {
-            return processPayment(providerDetails);
-        });
-
-    }
-
-    return {
-        setKey,
-        setCurrency,
-        setAmount,
-        setDescription,
-        setCallbackUrl,
-        setPayload,
-        setPaymentProvider,
-        setProviderDetails,
-        processPayment,
-        processCheckout,
-        pay
-    }
+  pay() {
+    return this.processCheckout().then(() => {
+      return this.processPayment(this.providerDetails);
+    });
+  }
 }
