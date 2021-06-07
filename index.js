@@ -1,4 +1,4 @@
-const { LittlePayment, CURRENCIES, PROVIDERS } = require('./lib');
+const { LittlePayment } = require('./lib');
 let pay = new LittlePayment({
   clientId: '28aae4895c0a5f17',
   clientSecret: '5BW/hXcahNsLazJXjsvDvA==',
@@ -6,12 +6,14 @@ let pay = new LittlePayment({
 });
 
 pay.setKey("45");
-pay.setCurrency(CURRENCIES.KES);
+pay.setCurrency('KES');
 pay.setAmount(10);
 pay.setPayload({name: "Heri Agape"});
-pay.setPaymentProvider(PROVIDERS.MPESA);
+pay.setPaymentProvider('MPESA');
 pay.setProviderDetails({mobile: '0700928129'});
 pay.setCallbackUrl("https://127.0.0.1/callback");
 pay.setDescription("THIS IS MY DESCRIPTION");
 
-pay.pay().then(result => console.log(result)).catch(err => console.log("ERROR: => ", err))
+console.log(pay);
+
+// pay.pay().then(result => console.log(result)).catch(err => console.log("ERROR: => ", err))

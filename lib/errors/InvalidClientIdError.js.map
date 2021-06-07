@@ -1,0 +1,1 @@
+{"version":3,"file":"InvalidClientIdError.js","sourceRoot":"","sources":["../../src/errors/InvalidClientIdError.ts"],"names":[],"mappings":";;;;;;;;;;;;;;;;AAAA;IAAmC,wCAAK;IACtC;QAAA,YACE,kBAAM,uBAAuB,CAAC,SAI/B;QAFC,gCAAgC;QAChC,MAAM,CAAC,cAAc,CAAC,KAAI,EAAE,oBAAoB,CAAC,SAAS,CAAC,CAAC;;IAC9D,CAAC;IACH,2BAAC;AAAD,CAAC,AAPD,CAAmC,KAAK,GAOvC"}

@@ -21,15 +21,15 @@ export default class BasicAuth {
   constructor(auth: AuthType) {
     const { clientId, clientSecret, appToken } = auth;
     if (!clientId || !clientSecret || !appToken) {
-      throw new Error('clientId or clientSecret or appToken not provided');
+      throw new InvalidAuthenticationError();
     }
 
     if (!this.isBase64(clientSecret)) {
-      throw new Error('Invalid clientSecret provided');
+      throw new InvalidSecretError();
     }
 
     if (clientId.length !== 16) {
-      throw new Error('Invalid clientId provided');
+      throw new InvalidClientIdError();
     }
 
     this.auth = auth;

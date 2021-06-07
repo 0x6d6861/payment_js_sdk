@@ -1,0 +1,1 @@
+{"version":3,"file":"InvalidAuthenticationError.js","sourceRoot":"","sources":["../../src/errors/InvalidAuthenticationError.ts"],"names":[],"mappings":";;;;;;;;;;;;;;;;AAAA;IAAyC,8CAAK;IAC5C;QAAA,YACE,kBAAM,iDAAiD,CAAC,SAIzD;QAFC,gCAAgC;QAChC,MAAM,CAAC,cAAc,CAAC,KAAI,EAAE,0BAA0B,CAAC,SAAS,CAAC,CAAC;;IACpE,CAAC;IACH,iCAAC;AAAD,CAAC,AAPD,CAAyC,KAAK,GAO7C"}
